@@ -9,7 +9,7 @@ using TaskEngAmr.Services.Abstraction;
 
 namespace TaskEngAmr.Services
 {
-    public class BranchServices: IBranchServices
+    public class BranchServices : IBranchServices
     {
         private readonly IMainRepo<Branch> _branchRepo;
         private readonly IMapper _mapper;
@@ -19,21 +19,28 @@ namespace TaskEngAmr.Services
             _branchRepo = branchRepo;
             _mapper = mapper;
         }
-        public async Task<APIRequest<List<BranchDTO.GetEdit>>> GetAllBranches()
+        public async Task<APIRequest<BranchDTO.Get>> GetAllBranches(int pageNumber, int pageSize)
         {
-            var response = new APIRequest<List<BranchDTO.GetEdit>>();
-            var branches = await _branchRepo.Get();
-            if(branches == null || branches.Count() == 0)
+            var response = new APIRequest<BranchDTO.Get>();
+            var branches = (await _branchRepo.Get())
+                .Skip(pageSize * (pageNumber - 1))
+                .Take(pageSize).ToList();
+            if (branches == null || branches.Count() == 0)
             {
                 response.Status = false;
                 response.Message = "There Is No Branches";
 
                 return response;
             }
-
+            var data = branches.Select(_mapper.Map<BranchDTO.GetEdit>).ToList();
+            var DTO = new BranchDTO.Get()
+            {
+                Data = data,
+                Size = (await _branchRepo.Get()).Count()
+            };
+            response.Response = DTO;
             response.Status = true;
             response.Message = "Success";
-            response.Response = branches.Select(_mapper.Map<BranchDTO.GetEdit>).ToList();
 
             return response;
         }
@@ -41,7 +48,7 @@ namespace TaskEngAmr.Services
         {
             var response = new APIRequest<BranchDTO.GetEdit>();
             var branch = await _branchRepo.Get(Id);
-            if(branch == null )
+            if (branch == null)
             {
                 response.Status = false;
                 response.Message = "Invalid Branch Id";
@@ -61,7 +68,7 @@ namespace TaskEngAmr.Services
             var branch = _mapper.Map<Branch>(model);
             branch = await _branchRepo.Add(branch);
             await _branchRepo.SaveChanges();
-            if(branch == null )
+            if (branch == null)
             {
                 response.Status = false;
                 response.Message = "Failed To Add";
@@ -79,14 +86,14 @@ namespace TaskEngAmr.Services
         {
             var response = new APIRequest<BranchDTO.GetEdit>();
             var branch = await _branchRepo.Get(model.Id);
-            if(branch == null )
+            if (branch == null)
             {
                 response.Status = false;
                 response.Message = "Invalid Branch Id";
 
                 return response;
             }
-            branch =  await _branchRepo.Edit(_mapper.Map<Branch>(model));
+            branch = await _branchRepo.Edit(_mapper.Map<Branch>(model));
             await _branchRepo.SaveChanges();
             if (branch == null)
             {
@@ -105,14 +112,14 @@ namespace TaskEngAmr.Services
         {
             var response = new APIRequest<BranchDTO.GetEdit>();
             var branch = await _branchRepo.Get(Id);
-            if(branch == null )
+            if (branch == null)
             {
                 response.Status = false;
                 response.Message = "Invalid Branch Id";
 
                 return response;
             }
-            branch =  await _branchRepo.Delete(branch);
+            branch = await _branchRepo.Delete(branch);
             await _branchRepo.SaveChanges();
             if (branch == null)
             {

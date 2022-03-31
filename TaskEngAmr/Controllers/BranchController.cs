@@ -16,13 +16,13 @@ namespace TaskEngAmr.Controllers
         {
             _branchServices = branchServices;
         }
-        [Authorize]
+        //[Authorize]
         [HttpGet("GetAllBranches")]
-        public async Task<IActionResult> GetAllBranches()
+        public async Task<IActionResult> GetAllBranches([FromQuery]int pageNumber, int pageSize)
         {
             try
             {
-                return Ok(await _branchServices.GetAllBranches());
+                return Ok(await _branchServices.GetAllBranches(pageNumber,pageSize));
             }
             catch (System.Exception ex)
             {

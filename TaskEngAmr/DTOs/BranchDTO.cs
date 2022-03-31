@@ -1,4 +1,6 @@
-﻿namespace TaskEngAmr.DTOs
+﻿using System.Collections.Generic;
+
+namespace TaskEngAmr.DTOs
 {
     public class BranchDTO
     {
@@ -18,6 +20,11 @@
             public double Lat { get; set; }
             public double Long { get; set; }
             public string Address { get; set; }
+        }
+        public class Get
+        {
+            public List<GetEdit> Data { get; set; }
+            public int Size { get; set; }
         }
     }
 }
